@@ -1,1 +1,33 @@
 .top-buffer { margin-top:8px; }
+
+.header{
+    background: #3356b4;
+    height:50px;
+}
+
+.header-title{
+    color: #e1e1e1;
+    display: inline-block;
+}
+
+.header-title2{
+    color: #a5bfe1;
+    display: inline-block;
+}
+
+.vertical-align {
+    display: flex;
+    flex-direction: row;
+}
+
+.vertical-align > [class^="col-"],
+.vertical-align > [class*=" col-"] {
+    display: flex;
+    align-items: center;     /* Align the flex-items vertically */
+    /*justify-content: center;*/ /* Optional, to align inner flex-items
+                              horizontally within the column  */
+}
+
+.vertical-align [id^="login"]{
+    margin-left: auto
+}

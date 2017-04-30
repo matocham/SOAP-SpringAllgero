@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}"></link>
+    <script type="application/javascript" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/resources/css/site.css}"></link>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row header vertical-align" id="header" th:fragment="header">
+        <div class="col-md-10">
+            <div class="text-left">
+                <h1 id="title" class="header-title">Allegro</h1>
+                <h2 id="title2" class="header-title"><em>Bis</em></h2>
+            </div>
+        </div>
+        <div class="col-md-2" id="loginHolder">
+            <span class="sr-only" id="loggeedAs">Jesteś zalogowany jako</span>
+            <button id="loginButton" class="btn btn-default">Login</button>
+        </div>
+    </div>
+
+    <div th:fragment="leftCol" class="col-md-2">
+        <span class="btn btn-primary">Categories</span>
+    </div>
+</div>
+</body>
+</html>
