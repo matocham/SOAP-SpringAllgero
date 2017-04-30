@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Login result</title>
+</head>
+<body>
+<h1>Login status:</h1>
+<div th:if="${!#strings.isEmpty(apiSession)}">
+    <h2 th:text="'Logged successfuly. Session key: '+${apiSession}"></h2>
+</div>
+</body>
+</html>

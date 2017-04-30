@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}"></link>
+    <script type="application/javascript" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/resources/css/site.css}"></link>
+</head>
+<body>
+<div class="container-fluid">
+    <form th:object="${loginFrom}" th:action="@{/login}" method="post" class="form">
+        <h1>Login form</h1>
+        <div class="row form-group">
+            <div class="col-md-1 col-form-label">
+                <label th:for="*{username}">Login</label>
+
+            </div>
+            <div class="col-md-2">
+                <input class="form-control" type="text" value="username" th:field="*{username}"/>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-1 col-form-label">
+                <label th:for="*{password}">Password</label>
+
+            </div>
+            <div class="col-md-2">
+                <input class="form-control" type="password" value="password" th:field="*{password}"/>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-offset-1 col-md-1">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>
