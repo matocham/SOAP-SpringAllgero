@@ -1,30 +1,49 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:fragment="pageHead">
     <meta charset="UTF-8"/>
+    <title>Allegro Bis</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}"></link>
-    <script type="application/javascript" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
     <link rel="stylesheet" type="text/css" th:href="@{/resources/css/site.css}"></link>
+    <script type="application/javascript" th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
+    <script type="application/javascript" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+    <script type="application/javascript" th:src="@{/resources/js/utils.js}"></script>
+    <script type="application/javascript" th:src="@{/resources/js/doT.min.js}"></script>
+    <script type="application/javascript" th:inline="javascript">
+        var itemsPageSize=20;
+        var link = /*[[@{/rest/categories/list}]]*/ 'test';
+        var baseCategoryLink = /*[[@{/categories/show}]]*/ 'test';
+        var parentCategory = /*[[${param.category[0]}]]*/"0";
+        if (!parentCategory) {
+            parentCategory = "0";
+        }
+        $(document).ready(function () {
+            callForCategories(parentCategory, link, baseCategoryLink,0,20);
+        });
+    </script>
 </head>
 <body>
 <div class="container-fluid">
     <div class="row header vertical-align" id="header" th:fragment="header">
-        <div class="col-md-10">
+        <div class="col-md-10 centered">
             <div class="text-left">
                 <h1 id="title" class="header-title">Allegro</h1>
                 <h2 id="title2" class="header-title"><em>Bis</em></h2>
             </div>
         </div>
-        <div class="col-md-2" id="loginHolder">
+        <div class="col-md-2 centered" id="loginHolder">
             <span class="sr-only" id="loggeedAs">Jesteś zalogowany jako</span>
-            <button id="loginButton" class="btn btn-default">Login</button>
+            <button id="loginButton" class="btn btn-default btn-block">Login</button>
         </div>
     </div>
 
-    <div th:fragment="leftCol" class="col-md-2">
-        <span class="btn btn-primary">Categories</span>
+    <div th:fragment="leftCol" class="col-md-2 categories">
+        <span class="btn btn-primary btn-block">Categories</span>
+        <div class="loader box" id="leftLoader"></div>
+        <ul id="catList">
+
+        </ul>
     </div>
 </div>
 </body>

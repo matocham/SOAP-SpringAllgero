@@ -1,17 +1,19 @@
-.top-buffer { margin-top:8px; }
-
-.header{
-    background: #3356b4;
-    height:50px;
+.top-buffer {
+    margin-top: 8px;
 }
 
-.header-title{
-    color: #e1e1e1;
+.header {
+    background: #3356b4;
+    height: 50px;
+}
+
+.header-title {
+    color: white;
     display: inline-block;
 }
 
-.header-title2{
-    color: #a5bfe1;
+.header-title2 {
+    color: #d5dce1;
     display: inline-block;
 }
 
@@ -20,14 +22,127 @@
     flex-direction: row;
 }
 
-.vertical-align > [class^="col-"],
-.vertical-align > [class*=" col-"] {
+.vertical-align > .centered {
     display: flex;
-    align-items: center;     /* Align the flex-items vertically */
-    /*justify-content: center;*/ /* Optional, to align inner flex-items
-                              horizontally within the column  */
+    align-items: center; /* Align the flex-items vertically */
+    /*justify-content: center;*/
+    /* Optional, to align inner flex-items
+                                 horizontally within the column  */
 }
 
-.vertical-align [id^="login"]{
+.vertical-align [id^="login"] {
     margin-left: auto
+}
+
+.categories {
+    margin-top: 10px;
+}
+
+.loader {
+    border: 10px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 10px solid #3498db;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.box {
+    position: relative;
+    width: 20%; /* desired width */
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.box:before {
+    content: "";
+    display: block;
+    padding-top: 100%; /* initial ratio of 1:1*/
+}
+
+#catList {
+    list-style: none;
+    padding-left: 10px;
+}
+
+#catList > li > a {
+    padding-left: 10px;
+}
+
+#catList > li > a:hover {
+    color: white;
+    font-weight: bold;
+    background: #3498db;
+    border: 1px solid #3498db;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    text-decoration: none;
+    display: block;
+}
+
+.addContainer {
+    -webkit-box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.75);
+    box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.75);
+    margin: 0 0;
+    height: 150px;
+}
+
+.autoMargin {
+    display: block;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.addHeader {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.addState {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    color:darkgray;
+}
+
+.addPrice{
+    margin-top: 5px;
+    margin-bottom: 0px;
+    color:black;
+}
+
+.addPriceType {
+    margin-top: 0px;
+    margin-bottom: 1px;
+    color:red;
+}
+
+.addEndDate {
+    margin-top: 8px;
+    margin-bottom: 0px;
+}
+
+.addPriceWithDelivery {
+    margin-top: 6px;
+    margin-bottom: 1px;
+    color:darkgray;
 }

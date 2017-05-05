@@ -15,7 +15,7 @@ import pl.edu.pb.soap.model.LoginForm;
  * Created by Mateusz on 26.04.2017.
  */
 @Controller
-public class HomeController {
+public class MainController {
     @Autowired
     AllegroSoapClient client;
 
@@ -41,5 +41,15 @@ public class HomeController {
             model.addAttribute("apiSession", session);
         }
         return "loginResult";
+    }
+
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public String homePage() {
+        return "category";
+    }
+
+    @RequestMapping(value = "/categories/show", method = RequestMethod.GET)
+    public String showCategory() {
+        return "category";
     }
 }

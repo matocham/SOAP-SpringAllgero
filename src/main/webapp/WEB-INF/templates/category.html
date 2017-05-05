@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="base :: pageHead">
+</head>
+<body>
+<script type="application/javascript" th:inline="javascript">
+    var baseAddLink = /*[[@{/adds/show}]]*/ 'test';
+    var noImageLink = /*[[@{/resources/images/noimage.png}]]*/ "test";
+    var offset = 0;
+    var addsLink = /*[[@{/rest/categories/content}]]*/ 'test';
+    $(document).ready(function () {
+        callForAdds(parentCategory, addsLink, baseAddLink, offset, itemsPageSize);
+    });
+</script>
+<div class="container-fluid">
+    <div th:replace="base :: header"></div>
+    <div class="row">
+        <div th:replace="base :: leftCol"></div>
+        <div class="col-md-8 categories">
+            <h2>Advertisements</h2>
+            <div class="loader box" id="catLoader"></div>
+            <div id="addverts">
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</body>
+</html>
