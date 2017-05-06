@@ -25,9 +25,14 @@
 .vertical-align > .centered {
     display: flex;
     align-items: center; /* Align the flex-items vertically */
-    /*justify-content: center;*/
+    justify-content: center;
     /* Optional, to align inner flex-items
                                  horizontally within the column  */
+}
+
+.centered-h {
+    margin-left:auto;
+    margin-right:auto;
 }
 
 .vertical-align [id^="login"] {

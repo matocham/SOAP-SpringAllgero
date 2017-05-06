@@ -12,6 +12,7 @@ public class Advertisement {
     String lastTime;
     String state;
     String endDate;
+    String imageUrl;
 
     public Advertisement() {
 
@@ -79,5 +80,13 @@ public class Advertisement {
 
     public void setPriceType(String priceType) {
         this.priceType = priceType;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

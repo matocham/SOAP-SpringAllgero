@@ -11,33 +11,49 @@
     <script type="application/javascript" th:src="@{/resources/js/utils.js}"></script>
     <script type="application/javascript" th:src="@{/resources/js/doT.min.js}"></script>
     <script type="application/javascript" th:inline="javascript">
-        var itemsPageSize=20;
+        var itemsPageSize = 20;
+        var homeLink = /*[[@{/}]]*/ 'test';
         var link = /*[[@{/rest/categories/list}]]*/ 'test';
         var baseCategoryLink = /*[[@{/categories/show}]]*/ 'test';
-        var parentCategory = /*[[${param.category[0]}]]*/"0";
+        var parentCategory = getUrlParameter('category');
+        if (!parentCategory) {
+            parentCategory = '0';
+        }
         if (!parentCategory) {
             parentCategory = "0";
         }
         $(document).ready(function () {
-            callForCategories(parentCategory, link, baseCategoryLink,0,20);
+            callForCategories(parentCategory, link, baseCategoryLink, 0, 20);
         });
     </script>
 </head>
 <body>
-<div class="container-fluid">
-    <div class="row header vertical-align" id="header" th:fragment="header">
-        <div class="col-md-10 centered">
-            <div class="text-left">
-                <h1 id="title" class="header-title">Allegro</h1>
-                <h2 id="title2" class="header-title"><em>Bis</em></h2>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="row header vertical-align" id="header" th:fragment="header">
+            <div class="col-md-2 centered">
+                <div class="text-left">
+                    <h1 id="title" class="header-title">Allegro</h1>
+                    <h2 id="title2" class="header-title"><em>Bis</em></h2>
+                </div>
+            </div>
+            <div class="col-md-7 col-md-offset-1">
+                <form class="navbar-form navbar-left" role="search">
+                    <div class="form-group">
+                        <label class="sr-only" for="searchInput">Search</label>
+                        <input type="text" id="searchInput" class="form-control" style="width:500px" placeholder="Szukaj"/>
+                    </div>
+                    <button type="submit" class="btn btn-default" style="width:100px">Szukaj</button>
+                </form>
+            </div>
+            <div class="col-md-2 centered" id="loginHolder">
+                <span class="sr-only" id="loggeedAs">Jesteś zalogowany jako</span>
+                <button id="loginButton" class="btn btn-default btn-block">Zaloguj się</button>
             </div>
         </div>
-        <div class="col-md-2 centered" id="loginHolder">
-            <span class="sr-only" id="loggeedAs">Jesteś zalogowany jako</span>
-            <button id="loginButton" class="btn btn-default btn-block">Login</button>
-        </div>
     </div>
-
+</nav>
+<div class="container-fluid">
     <div th:fragment="leftCol" class="col-md-2 categories">
         <span class="btn btn-primary btn-block">Categories</span>
         <div class="loader box" id="leftLoader"></div>

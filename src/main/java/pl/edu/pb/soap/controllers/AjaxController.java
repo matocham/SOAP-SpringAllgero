@@ -1,12 +1,12 @@
 package pl.edu.pb.soap.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.edu.pb.soap.beans.AllegroSoapClient;
 import pl.edu.pb.soap.restModel.AddsContainer;
+import pl.edu.pb.soap.restModel.Breadcrumb;
 import pl.edu.pb.soap.restModel.Category;
 import pl.edu.pb.soap.utils.CategoryUtils;
 
@@ -31,8 +31,8 @@ public class AjaxController {
         return allegro.getAddsFromCategory(category, offset, size);
     }
 
-    @RequestMapping(value = "/rest/adds/image", produces = MediaType.IMAGE_JPEG_VALUE)
-    public byte[] getAddImage(Integer addId) {
-        return null;
+    @RequestMapping(value = "/rest/navigation/breadcrumbs")
+    public List<Breadcrumb> getAddImage(Integer category) {
+        return allegro.getPathTo(category);
     }
 }

@@ -8,19 +8,19 @@ function callForCategories(parentCat, link, baseCategoryLink) {
         method: "GET",
         success: function (data, status, object1) {
             console.log(data);
-            $adds = $("#catList");
+            var $cats = $("#catList");
             for (var i = 0; i < data.length; i++) {
-                $listElement = $("<li></li>");
-                $linkElement = $("<a></a>");
+                var $listElement = $("<li></li>");
+                var $linkElement = $("<a></a>");
                 $linkElement.text(data[i].name);
                 $linkElement.attr("href", baseCategoryLink + "?category=" + data[i].id);
                 $listElement.append($linkElement);
-                $adds.append($listElement);
+                $cats.append($listElement);
             }
         },
         error: function (object1, status, errorThrown) {
             console.log(errorThrown);
-            setTimeout(callForCategories, 500, [parentCat, link, baseCategoryLink]);
+            setTimeout(callForCategories, 500, parentCat, link, baseCategoryLink);
         },
         data: {parent: parentCat},
         beforeSend: function () {
@@ -32,7 +32,49 @@ function callForCategories(parentCat, link, baseCategoryLink) {
     })
 }
 
+function callForBreadcrumbs(cat) {
+    $.ajax({
+        url: breadcrumbsLink,
+        method: "GET",
+        success: function (data, status, object1) {
+            console.log(data);
+            if(data){
+                var $navigation = $("#navigation");
+                $navigation.show();
+                var $home = $("<li></li>");
+                var $homeLink = $("<a></a>");
+                $homeLink.attr("href",homeLink);
+                $homeLink.text("Home");
+                $home.append($homeLink);
+                $navigation.append($home);
+
+                for (var i = 0; i < data.length; i++) {
+                    var $listElement = $("<li></li>");
+                    if(i != data.length-1){
+                        var $linkElement = $("<a></a>");
+                        $linkElement.text(data[i].categoryName);
+                        $linkElement.attr("href", baseCategoryLink + "?category=" + data[i].id);
+                        $listElement.append($linkElement);
+                    } else {
+                        $listElement.text(data[i].categoryName);
+                        $listElement.attr("class","active");
+                    }
+
+                    $navigation.append($listElement);
+                }
+            }
+        },
+        error: function (object1, status, errorThrown) {
+            $("#navigation").hide();
+            console.log(errorThrown);
+            setTimeout(callForBreadcrumbs, 500, parentCat);
+        },
+        data: {category: cat}
+    })
+}
+
 function callForAdds(parentCat, link, baseAddLink, offsetVal, sizeVal) {
+    $("#addverts").find("div").remove();
     $.ajax({
         url: link,
         method: "GET",
@@ -41,19 +83,24 @@ function callForAdds(parentCat, link, baseAddLink, offsetVal, sizeVal) {
             totalItems = data.totalCount;
             refreshNavigation();
 
-            $adds = $("#addverts");
+            var adds = $("#addverts");
+            adds.find("div").remove();
             var downloadedAdds = data.adds;
-            var addTemplate = doT.template(addTemplateString);
-            for (var i = 0; i < downloadedAdds.length; i++) {
-                downloadedAdds[i].addLink=baseAddLink + "?add=" + downloadedAdds[i].id;
-                downloadedAdds[i].imageLink=noImageLink;
-                var result = addTemplate(downloadedAdds[i]);
-                $adds.append($.parseHTML(result));
+            if(downloadedAdds){
+                var addTemplate = doT.template(addTemplateString);
+                for (var i = 0; i < downloadedAdds.length; i++) {
+                    downloadedAdds[i].addLink=baseAddLink + "?add=" + downloadedAdds[i].id;
+                    if(!downloadedAdds[i].imageUrl){
+                        downloadedAdds[i].imageUrl=noImageLink;
+                    }
+                    var result = addTemplate(downloadedAdds[i]);
+                    adds.append($.parseHTML(result));
+                }
             }
         },
         error: function (object1, status, errorThrown) {
             console.log(errorThrown);
-            setTimeout(callForAdds, 500, [parentCat, link, baseAddLink, offsetVal, sizeVal]);
+            setTimeout(callForAdds, 500, parentCat, link, baseAddLink, offsetVal, sizeVal);
         },
         data: {category: parentCat, offset: offsetVal, size: sizeVal},
         beforeSend: function () {
@@ -127,11 +174,26 @@ function refreshNavigation() {
     }
 }
 
+var getUrlParameter = function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+};
+
 var addTemplateString = "<div class='panel panel-default'>" +
     "<div class='row addContainer vertical-align'>" +
     "<div class='col-md-2 centered'>" +
     "<a href='{{=it.addLink}}' class='thumbnail autoMargin'>" +
-    "<img src='{{=it.imageLink}}'/>" +
+    "<img src='{{=it.imageUrl}}'/>" +
     "</a>" +
     "</div>" +
     "<div class='col-md-10'>" +

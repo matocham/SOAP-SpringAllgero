@@ -8,8 +8,13 @@
     var noImageLink = /*[[@{/resources/images/noimage.png}]]*/ "test";
     var offset = 0;
     var addsLink = /*[[@{/rest/categories/content}]]*/ 'test';
+    var breadcrumbsLink = /*[[@{/rest/navigation/breadcrumbs}]]*/ 'test';
     $(document).ready(function () {
-        callForAdds(parentCategory, addsLink, baseAddLink, offset, itemsPageSize);
+        $("#navigation").hide();
+        if(parentCategory !="0"){
+            callForAdds(parentCategory, addsLink, baseAddLink, offset, itemsPageSize);
+            callForBreadcrumbs(parentCategory);
+        }
     });
 </script>
 <div class="container-fluid">
@@ -17,7 +22,8 @@
     <div class="row">
         <div th:replace="base :: leftCol"></div>
         <div class="col-md-8 categories">
-            <h2>Advertisements</h2>
+            <ol id="navigation" class="breadcrumb"></ol>
+            <h2>Ogłoszenia</h2>
             <div class="loader box" id="catLoader"></div>
             <div id="addverts">
             </div>
