@@ -5,15 +5,14 @@
 <body>
 <script type="application/javascript" th:inline="javascript">
     var offset = 0;
-    var addsLink = /*[[@{/rest/categories/content}]]*/ 'test';
-    var breadcrumbsLink = /*[[@{/rest/navigation/breadcrumbs}]]*/ 'test';
+    var query = getUrlParameter("q");
+    query = query.replaceAll("+"," ");
+    var searchLink = /*[[@{/rest/items/search}]]*/ 'test';
     $(document).ready(function () {
+        $("#q").val(query);
+        $("#noSearchResults").hide();
         $("#navigation").hide();
-        $("#noItems").hide();
-        if(parentCategory !="0"){
-            callForAdds(parentCategory, offset, itemsPageSize);
-            callForBreadcrumbs(parentCategory);
-        }
+            callForSearchResults(query, offset, itemsPageSize);
     });
 </script>
 <div class="container-fluid">
@@ -21,13 +20,12 @@
     <div class="row">
         <div th:replace="base :: leftCol"></div>
         <div class="col-md-8 categories">
-            <ol id="navigation" class="breadcrumb"></ol>
-            <h2>Ogłoszenia</h2>
-            <div class="loader box" id="catLoader"></div>
+            <h2>Wyniki wyszukiwania</h2>
+            <div class="loader box" id="searchLoader"></div>
             <div id="addverts">
             </div>
-            <p id="noItems" class="bg-danger has-error noResults">
-                <br/>Brak ogłoszeń w kategorii<br/><br/>
+            <p id="noSearchResults" class="bg-danger has-error noResults">
+                <br/>Brak wyników dla podanych kryteriów wyszukiwania<br/><br/>
             </p>
             <nav aria-label="Page navigation">
                 <ul class="pagination">

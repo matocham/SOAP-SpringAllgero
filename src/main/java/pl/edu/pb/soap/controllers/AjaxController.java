@@ -31,6 +31,11 @@ public class AjaxController {
         return allegro.getAddsFromCategory(category, offset, size);
     }
 
+    @RequestMapping("/rest/items/search")
+    public AddsContainer search(@RequestParam("q") String query, @RequestParam("size") Integer size, @RequestParam("offset") Integer offset) {
+        return allegro.search(query, offset, size);
+    }
+
     @RequestMapping(value = "/rest/navigation/breadcrumbs")
     public List<Breadcrumb> getAddImage(Integer category) {
         return allegro.getPathTo(category);

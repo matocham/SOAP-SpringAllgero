@@ -105,6 +105,11 @@ public class AllegroSoapClient {
         DoGetItemsListResponse doGetItemsList = allegro.doGetItemsList(itemsreq);
 
         container.setTotalCount(doGetItemsList.getItemsCount());
+        populateResultsList(container, doGetItemsList);
+        return container;
+    }
+
+    private void populateResultsList(AddsContainer container, DoGetItemsListResponse doGetItemsList) {
         if (doGetItemsList.getItemsList() != null) {
             List<Advertisement> foundAdds = new ArrayList<>();
             for (ItemsListType item : doGetItemsList.getItemsList().getItem()) {
@@ -147,6 +152,34 @@ public class AllegroSoapClient {
             }
             container.setAdds(foundAdds);
         }
+    }
+
+    public AddsContainer search(String query, int offset, int size) {
+        AddsContainer container = new AddsContainer();
+        Integer scope = 0;
+
+        DoGetItemsListRequest itemsreq = new DoGetItemsListRequest();
+        itemsreq.setWebapiKey(env.getProperty(ALLEGRO_SANDBOX_KEY)); // Klucz WebApi
+        itemsreq.setResultOffset(offset);
+        itemsreq.setResultSize(size);
+        itemsreq.setResultScope(scope);
+
+        FilterOptionsType fotcat;
+        fotcat = new FilterOptionsType();
+        fotcat.setFilterId("search");
+
+        ArrayOfString categories;
+        categories = new ArrayOfString();
+        categories.getItem().add(query);
+        fotcat.setFilterValueId(categories);
+
+        ArrayOfFilteroptionstype filter = new ArrayOfFilteroptionstype();
+        filter.getItem().add(fotcat);
+        itemsreq.setFilterOptions(filter);
+        DoGetItemsListResponse doGetItemsList = allegro.doGetItemsList(itemsreq);
+
+        container.setTotalCount(doGetItemsList.getItemsCount());
+        populateResultsList(container, doGetItemsList);
         return container;
     }
 

@@ -1,12 +1,16 @@
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Spittr</title>
-    <link rel="stylesheet" type="text/css" th:href="@{/resources/css/site.css}"></link>
+<head th:replace="base :: pageHead">
 </head>
 <body>
-<h1 class="blue">Witamy w aplikacji Spittr</h1>
-<a  class="blue" th:href="@{/spittles}">Spittle</a>
-<a th:href="@{/spitter/register}">Zarejestruj</a>
-<h1 th:text="${msg}"></h1>
+<div class="container-fluid">
+    <div th:replace="base :: header"></div>
+    <div class="row">
+        <div th:replace="base :: leftCol"></div>
+        <div class="col-md-8">
+            <h2>Witamy w aplikacji Allegro <em>Bis</em></h2>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -45,11 +45,16 @@ public class MainController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String homePage() {
-        return "category";
+        return "index";
     }
 
     @RequestMapping(value = "/categories/show", method = RequestMethod.GET)
     public String showCategory() {
         return "category";
+    }
+
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    public String searchForItems() {
+        return "search";
     }
 }

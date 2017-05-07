@@ -2,6 +2,11 @@ var previousString = "<li><a href='#' aria-label='Previous'><span aria-hidden='t
 var nextString = "<li><a href='#' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>";
 var totalItems = 0;
 
+String.prototype.replaceAll = function (search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
+
 function callForCategories(parentCat, link, baseCategoryLink) {
     $.ajax({
         url: link,
@@ -38,26 +43,26 @@ function callForBreadcrumbs(cat) {
         method: "GET",
         success: function (data, status, object1) {
             console.log(data);
-            if(data){
+            if (data) {
                 var $navigation = $("#navigation");
                 $navigation.show();
                 var $home = $("<li></li>");
                 var $homeLink = $("<a></a>");
-                $homeLink.attr("href",homeLink);
+                $homeLink.attr("href", homeLink);
                 $homeLink.text("Home");
                 $home.append($homeLink);
                 $navigation.append($home);
 
                 for (var i = 0; i < data.length; i++) {
                     var $listElement = $("<li></li>");
-                    if(i != data.length-1){
+                    if (i != data.length - 1) {
                         var $linkElement = $("<a></a>");
                         $linkElement.text(data[i].categoryName);
                         $linkElement.attr("href", baseCategoryLink + "?category=" + data[i].id);
                         $listElement.append($linkElement);
                     } else {
                         $listElement.text(data[i].categoryName);
-                        $listElement.attr("class","active");
+                        $listElement.attr("class", "active");
                     }
 
                     $navigation.append($listElement);
@@ -73,34 +78,38 @@ function callForBreadcrumbs(cat) {
     })
 }
 
-function callForAdds(parentCat, link, baseAddLink, offsetVal, sizeVal) {
+function callForAdds(parentCat, offsetVal, sizeVal) {
     $("#addverts").find("div").remove();
     $.ajax({
-        url: link,
+        url: addsLink,
         method: "GET",
         success: function (data, status, object1) {
             console.log(data);
             totalItems = data.totalCount;
-            refreshNavigation();
+            if (totalItems == 0) {
+                $("#noItems").show();
+            } else {
+                refreshNavigation();
 
-            var adds = $("#addverts");
-            adds.find("div").remove();
-            var downloadedAdds = data.adds;
-            if(downloadedAdds){
-                var addTemplate = doT.template(addTemplateString);
-                for (var i = 0; i < downloadedAdds.length; i++) {
-                    downloadedAdds[i].addLink=baseAddLink + "?add=" + downloadedAdds[i].id;
-                    if(!downloadedAdds[i].imageUrl){
-                        downloadedAdds[i].imageUrl=noImageLink;
+                var adds = $("#addverts");
+                adds.find("div").remove();
+                var downloadedAdds = data.adds;
+                if (downloadedAdds) {
+                    var addTemplate = doT.template(addTemplateString);
+                    for (var i = 0; i < downloadedAdds.length; i++) {
+                        downloadedAdds[i].addLink = baseAddLink + "?add=" + downloadedAdds[i].id;
+                        if (!downloadedAdds[i].imageUrl) {
+                            downloadedAdds[i].imageUrl = noImageLink;
+                        }
+                        var result = addTemplate(downloadedAdds[i]);
+                        adds.append($.parseHTML(result));
                     }
-                    var result = addTemplate(downloadedAdds[i]);
-                    adds.append($.parseHTML(result));
                 }
             }
         },
         error: function (object1, status, errorThrown) {
             console.log(errorThrown);
-            setTimeout(callForAdds, 500, parentCat, link, baseAddLink, offsetVal, sizeVal);
+            setTimeout(callForAdds, 500, parentCat, addsLink, baseAddLink, offsetVal, sizeVal);
         },
         data: {category: parentCat, offset: offsetVal, size: sizeVal},
         beforeSend: function () {
@@ -112,33 +121,112 @@ function callForAdds(parentCat, link, baseAddLink, offsetVal, sizeVal) {
     })
 }
 
+function callForSearchResults(query, offsetVal, sizeVal) {
+    $("#addverts").find("div").remove();
+    $.ajax({
+        url: searchLink,
+        method: "GET",
+        success: function (data, status, object1) {
+            console.log(data);
+            totalItems = data.totalCount;
+            if (totalItems == 0) {
+                $("#noSearchResults").show();
+            } else {
+                refreshNavigationInSearch();
+
+                var adds = $("#addverts");
+                adds.find("div").remove();
+                var downloadedAdds = data.adds;
+                if (downloadedAdds) {
+                    var addTemplate = doT.template(addTemplateString);
+                    for (var i = 0; i < downloadedAdds.length; i++) {
+                        downloadedAdds[i].addLink = baseAddLink + "?add=" + downloadedAdds[i].id;
+                        if (!downloadedAdds[i].imageUrl) {
+                            downloadedAdds[i].imageUrl = noImageLink;
+                        }
+                        var result = addTemplate(downloadedAdds[i]);
+                        adds.append($.parseHTML(result));
+                    }
+                }
+            }
+        },
+        error: function (object1, status, errorThrown) {
+            console.log(errorThrown);
+            setTimeout(callForSearchResults, 500, query, offsetVal, sizeVal);
+        },
+        data: {q: query, offset: offsetVal, size: sizeVal},
+        beforeSend: function () {
+            $('#searchLoader').show();
+        },
+        complete: function () {
+            $('#searchLoader').hide();
+        },
+    })
+}
+
 function refreshNavigation() {
     $(".pagination li").remove();
     if (totalItems > 0) {
-        $previous = $.parseHTML(previousString);
-        $next = $.parseHTML(nextString);
-
-        $paginationList = $(".pagination");
+        var $previous = $.parseHTML(previousString);
+        var $next = $.parseHTML(nextString);
+        var currentPage = parseInt(offset / itemsPageSize) + 1;
+        var $paginationList = $(".pagination");
         var numberOfPages = Math.ceil(totalItems / itemsPageSize);
         if (numberOfPages > 1) {
             $paginationList.append($previous);
             for (var i = 1; i < numberOfPages + 1; i++) {
-                $paginationElement = $("<li></li>");
-                $linkElement = $("<a></a>");
-                $paginationElement.append($linkElement);
-                $linkElement.attr("href", "#");
-                $linkElement.text(i);
-                if (parseInt(offset / itemsPageSize) === i + 1) {
-                    $paginationElement.attr("class", "active");
+                var $paginationElement = $("<li></li>");
+                if (i != 1 && i != numberOfPages) {
+                    if (i - currentPage < 6 && i - currentPage >-5) {
+                        var $linkElement = $("<a></a>");
+                        $paginationElement.append($linkElement);
+                        $linkElement.attr("href", "#");
+                        $linkElement.text(i);
+                        if (currentPage == i) {
+                            $paginationElement.attr("class", "active");
+                        }else {
+                            $paginationElement.removeAttr("class");
+                        }
+
+                        $paginationList.append($paginationElement);
+                        $linkElement.on("click", function () {
+                            var selectedValue = $(this).text();
+                            offset = (selectedValue - 1) * itemsPageSize;
+                            callForAdds(parentCategory, offset, itemsPageSize);
+                        })
+                    } else if(i<currentPage){
+                        i= currentPage-5;
+                        $paginationElement.attr("class", "disabled");
+                        var $linkElement = $("<a></a>");
+                        $paginationElement.append($linkElement);
+                        $linkElement.attr("href", "#");
+                        $linkElement.text("...");
+                        $paginationList.append($paginationElement);
+                    } else if(i>currentPage){
+                        i= numberOfPages-1;
+                        $paginationElement.attr("class", "disabled");
+                        $paginationElement.append($linkElement);
+                        $linkElement.attr("href", "#");
+                        $linkElement.text("...");
+                        $paginationList.append($paginationElement);
+                    }
+                } else {
+                    var $linkElement = $("<a></a>");
+                    $paginationElement.append($linkElement);
+                    $linkElement.attr("href", "#");
+                    $linkElement.text(i);
+                    if (currentPage == i) {
+                        $paginationElement.attr("class", "active");
+                    } else {
+                        $paginationElement.removeAttr("class");
+                    }
+                    $paginationList.append($paginationElement);
+                    $linkElement.on("click", function () {
+                        var selectedValue = $(this).text();
+                        offset = (selectedValue - 1) * itemsPageSize;
+                        callForAdds(parentCategory, offset, itemsPageSize);
+                    })
                 }
-                $paginationList.append($paginationElement);
-                $linkElement.on("click", function () {
-                    $("#addverts li").remove();
-                    var selectedValue = $(this).text();
-                    offset = (selectedValue - 1) * itemsPageSize;
-                    setActivePage();
-                    callForAdds(parentCategory, addsLink, baseAddLink, offset, itemsPageSize);
-                })
             }
             $paginationList.append($next);
 
@@ -146,8 +234,7 @@ function refreshNavigation() {
                 if (offset > 0) {
                     $("#addverts li").remove();
                     offset = offset - itemsPageSize;
-                    setActivePage();
-                    callForAdds(parentCategory, addsLink, baseAddLink, offset, itemsPageSize);
+                    callForAdds(parentCategory, offset, itemsPageSize);
                 }
             });
 
@@ -155,22 +242,95 @@ function refreshNavigation() {
                 if (offset + itemsPageSize < totalItems) {
                     $("#addverts li").remove();
                     offset = offset + itemsPageSize;
-                    setActivePage();
-                    callForAdds(parentCategory, addsLink, baseAddLink, offset, itemsPageSize);
+                    callForAdds(parentCategory, offset, itemsPageSize);
                 }
             });
-            setActivePage();
         }
     }
+}
 
-    function setActivePage() {
-        $currentActive = $(".pagination li.active");
-        if ($currentActive) {
-            $currentActive.removeAttr("class", "active");
-        }
+function refreshNavigationInSearch() {
+    $(".pagination li").remove();
+    if (totalItems > 0) {
+        var $previous = $.parseHTML(previousString);
+        var $next = $.parseHTML(nextString);
         var currentPage = parseInt(offset / itemsPageSize) + 1;
-        $currentPageElement = $(".pagination li:contains(" + currentPage + ")");
-        $currentPageElement.attr("class", "active");
+        var $paginationList = $(".pagination");
+        var numberOfPages = Math.ceil(totalItems / itemsPageSize);
+        if (numberOfPages > 1) {
+            $paginationList.append($previous);
+            for (var i = 1; i < numberOfPages + 1; i++) {
+                var $paginationElement = $("<li></li>");
+                if (i != 1 && i != numberOfPages) {
+                    if (i - currentPage < 6 && i - currentPage >-5) {
+                        var $linkElement = $("<a></a>");
+                        $paginationElement.append($linkElement);
+                        $linkElement.attr("href", "#");
+                        $linkElement.text(i);
+                        if (currentPage == i) {
+                            $paginationElement.attr("class", "active");
+                        }else {
+                            $paginationElement.removeAttr("class");
+                        }
+
+                        $paginationList.append($paginationElement);
+                        $linkElement.on("click", function () {
+                            var selectedValue = $(this).text();
+                            offset = (selectedValue - 1) * itemsPageSize;
+                            callForSearchResults(query, offset, itemsPageSize);
+                        })
+                    } else if(i<currentPage){
+                        i= currentPage-5;
+                        $paginationElement.attr("class", "disabled");
+                        var $linkElement = $("<a></a>");
+                        $paginationElement.append($linkElement);
+                        $linkElement.attr("href", "#");
+                        $linkElement.text("...");
+                        $paginationList.append($paginationElement);
+                    } else if(i>currentPage){
+                        i= numberOfPages-1;
+                        $paginationElement.attr("class", "disabled");
+                        $paginationElement.append($linkElement);
+                        $linkElement.attr("href", "#");
+                        $linkElement.text("...");
+                        $paginationList.append($paginationElement);
+                    }
+                } else {
+                    var $linkElement = $("<a></a>");
+                    $paginationElement.append($linkElement);
+                    $linkElement.attr("href", "#");
+                    $linkElement.text(i);
+                    if (currentPage == i) {
+                        $paginationElement.attr("class", "active");
+                    } else {
+                        $paginationElement.removeAttr("class");
+                    }
+                    $paginationList.append($paginationElement);
+                    $linkElement.on("click", function () {
+                        var selectedValue = $(this).text();
+                        offset = (selectedValue - 1) * itemsPageSize;
+                        callForSearchResults(query, offset, itemsPageSize);
+                    })
+                }
+            }
+            $paginationList.append($next);
+
+            $paginationList.find("a[aria-label=Previous]").on("click", function () {
+                if (offset > 0) {
+                    $("#addverts li").remove();
+                    offset = offset - itemsPageSize;
+                    callForSearchResults(query, offset, itemsPageSize);
+                }
+            });
+
+            $paginationList.find("a[aria-label=Next]").on("click", function () {
+                if (offset + itemsPageSize < totalItems) {
+                    $("#addverts li").remove();
+                    offset = offset + itemsPageSize;
+                    callForSearchResults(query, offset, itemsPageSize);
+                }
+            });
+        }
     }
 }
 

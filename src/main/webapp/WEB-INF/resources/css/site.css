@@ -151,3 +151,10 @@
     margin-bottom: 1px;
     color:darkgray;
 }
+
+.noResults{
+    border-radius: 8px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    padding-left:10px !important;
+}
