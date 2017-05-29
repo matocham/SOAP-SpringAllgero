@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="pageHead">
+    <meta charset="UTF-8"/>
+    <title>Allegro Bis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}"></link>
+    <link rel="stylesheet" type="text/css" th:href="@{/resources/css/site.css}"></link>
+    <script type="application/javascript" th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
+    <script type="application/javascript" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+    <script type="application/javascript" th:src="@{/resources/js/utils.js}"></script>
+    <script type="application/javascript" th:src="@{/resources/js/doT.min.js}"></script>
+    <script type="application/javascript" th:inline="javascript">
+        var baseCategoryLink = /*[[@{/rest/categories/list}]]*/ 'test';
+        var homeLink = /*[[@{/}]]*/ 'test';
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="row header vertical-align" id="header" th:fragment="header">
+            <div class="col-md-2 centered">
+                <div class="text-left">
+                    <a th:href="@{/}">
+                        <h1 id="title" class="header-title">Allegro</h1>
+                        <h2 id="title2" class="header-title"><em>Bis</em></h2>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-2 col-md-offset-8 centered" id="loginHolder">
+                <!--<span class="sr-only" id="loggeedAs">Jesteś zalogowany jako</span>
+                <button id="loginButton" class="btn btn-default btn-block">Zaloguj się</button>-->
+            </div>
+        </div>
+    </div>
+</nav>
+</body>
+</html>

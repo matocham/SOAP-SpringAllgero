@@ -1,6 +1,7 @@
 var previousString = "<li><a href='#' aria-label='Previous'><span aria-hidden='true'>&laquo;</span></a></li>";
 var nextString = "<li><a href='#' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>";
 var totalItems = 0;
+var prevParent = 0;
 
 String.prototype.replaceAll = function (search, replacement) {
     var target = this;
@@ -97,7 +98,7 @@ function callForAdds(parentCat, offsetVal, sizeVal) {
                 if (downloadedAdds) {
                     var addTemplate = doT.template(addTemplateString);
                     for (var i = 0; i < downloadedAdds.length; i++) {
-                        downloadedAdds[i].addLink = baseAddLink + "?add=" + downloadedAdds[i].id;
+                        downloadedAdds[i].addLink = encodeURI(baseAddLink + "?add=" + downloadedAdds[i].id);
                         if (!downloadedAdds[i].imageUrl) {
                             downloadedAdds[i].imageUrl = noImageLink;
                         }
@@ -121,7 +122,7 @@ function callForAdds(parentCat, offsetVal, sizeVal) {
     })
 }
 
-function callForSearchResults(query, offsetVal, sizeVal) {
+function callForSearchResults(query, category, offsetVal, sizeVal) {
     $("#addverts").find("div").remove();
     $.ajax({
         url: searchLink,
@@ -140,7 +141,7 @@ function callForSearchResults(query, offsetVal, sizeVal) {
                 if (downloadedAdds) {
                     var addTemplate = doT.template(addTemplateString);
                     for (var i = 0; i < downloadedAdds.length; i++) {
-                        downloadedAdds[i].addLink = baseAddLink + "?add=" + downloadedAdds[i].id;
+                        downloadedAdds[i].addLink = encodeURI(baseAddLink + "?add=" + downloadedAdds[i].id);
                         if (!downloadedAdds[i].imageUrl) {
                             downloadedAdds[i].imageUrl = noImageLink;
                         }
@@ -154,7 +155,7 @@ function callForSearchResults(query, offsetVal, sizeVal) {
             console.log(errorThrown);
             setTimeout(callForSearchResults, 500, query, offsetVal, sizeVal);
         },
-        data: {q: query, offset: offsetVal, size: sizeVal},
+        data: {q: query, offset: offsetVal, size: sizeVal, cat: category},
         beforeSend: function () {
             $('#searchLoader').show();
         },
@@ -177,14 +178,14 @@ function refreshNavigation() {
             for (var i = 1; i < numberOfPages + 1; i++) {
                 var $paginationElement = $("<li></li>");
                 if (i != 1 && i != numberOfPages) {
-                    if (i - currentPage < 6 && i - currentPage >-5) {
+                    if (i - currentPage < 6 && i - currentPage > -5) {
                         var $linkElement = $("<a></a>");
                         $paginationElement.append($linkElement);
                         $linkElement.attr("href", "#");
                         $linkElement.text(i);
                         if (currentPage == i) {
                             $paginationElement.attr("class", "active");
-                        }else {
+                        } else {
                             $paginationElement.removeAttr("class");
                         }
 
@@ -194,16 +195,16 @@ function refreshNavigation() {
                             offset = (selectedValue - 1) * itemsPageSize;
                             callForAdds(parentCategory, offset, itemsPageSize);
                         })
-                    } else if(i<currentPage){
-                        i= currentPage-5;
+                    } else if (i < currentPage) {
+                        i = currentPage - 5;
                         $paginationElement.attr("class", "disabled");
                         var $linkElement = $("<a></a>");
                         $paginationElement.append($linkElement);
                         $linkElement.attr("href", "#");
                         $linkElement.text("...");
                         $paginationList.append($paginationElement);
-                    } else if(i>currentPage){
-                        i= numberOfPages-1;
+                    } else if (i > currentPage) {
+                        i = numberOfPages - 1;
                         $paginationElement.attr("class", "disabled");
                         $paginationElement.append($linkElement);
                         $linkElement.attr("href", "#");
@@ -262,14 +263,14 @@ function refreshNavigationInSearch() {
             for (var i = 1; i < numberOfPages + 1; i++) {
                 var $paginationElement = $("<li></li>");
                 if (i != 1 && i != numberOfPages) {
-                    if (i - currentPage < 6 && i - currentPage >-5) {
+                    if (i - currentPage < 6 && i - currentPage > -5) {
                         var $linkElement = $("<a></a>");
                         $paginationElement.append($linkElement);
                         $linkElement.attr("href", "#");
                         $linkElement.text(i);
                         if (currentPage == i) {
                             $paginationElement.attr("class", "active");
-                        }else {
+                        } else {
                             $paginationElement.removeAttr("class");
                         }
 
@@ -279,16 +280,16 @@ function refreshNavigationInSearch() {
                             offset = (selectedValue - 1) * itemsPageSize;
                             callForSearchResults(query, offset, itemsPageSize);
                         })
-                    } else if(i<currentPage){
-                        i= currentPage-5;
+                    } else if (i < currentPage) {
+                        i = currentPage - 5;
                         $paginationElement.attr("class", "disabled");
                         var $linkElement = $("<a></a>");
                         $paginationElement.append($linkElement);
                         $linkElement.attr("href", "#");
                         $linkElement.text("...");
                         $paginationList.append($paginationElement);
-                    } else if(i>currentPage){
-                        i= numberOfPages-1;
+                    } else if (i > currentPage) {
+                        i = numberOfPages - 1;
                         $paginationElement.attr("class", "disabled");
                         $paginationElement.append($linkElement);
                         $linkElement.attr("href", "#");
@@ -349,6 +350,91 @@ var getUrlParameter = function getUrlParameter(sParam) {
     }
 };
 
+function previewFile() {
+    var preview = $('#previewImage'); //selects the query named img
+    var file = document.querySelector('input[type=file]').files[0];
+    var reader = new FileReader();
+
+    reader.onloadend = function () {
+        preview.attr("src", reader.result);
+        preview.attr("class", "previewImage");
+    }
+
+    if (file) {
+        reader.readAsDataURL(file); //reads the data as a URL
+    } else {
+        preview.attr("src", "");
+    }
+}
+
+function callForCatList(parentCat) {
+    $.ajax({
+        url: baseCategoryLink,
+        method: "GET",
+        success: function (data, status, object1) {
+            console.log(data);
+            processData(data);
+        },
+        error: function (object1, status, errorThrown) {
+            console.log(errorThrown);
+            setTimeout(callForCatList, 500, parentCat);
+        },
+        data: {parent: parentCat},
+        beforeSend: function () {
+            $('#leftLoader').show();
+        },
+        complete: function () {
+            $('#leftLoader').hide();
+        },
+    })
+}
+
+function callForCatListBySybling(sybling1) {
+    $.ajax({
+        url: syblingLink,
+        method: "GET",
+        success: function (data, status, object1) {
+            console.log(data);
+            processData(data);
+        },
+        error: function (object1, status, errorThrown) {
+            console.log(errorThrown);
+            setTimeout(callForCatListBySybling, 500, sybling1);
+        },
+        data: {sybling: sybling1},
+        beforeSend: function () {
+            $('#leftLoader').show();
+        },
+        complete: function () {
+            $('#leftLoader').hide();
+        },
+    })
+}
+
+function processData(data) {
+    var $list = $("#leftCategory");
+    if (data.length > 0) {
+        var prev = data[0].parentId;
+        $list.empty();
+        var $listElement = $("<option></option>");
+        $listElement.val("back");
+        $listElement.text("-^-");
+        $listElement.dblclick(function () {
+            callForCatListBySybling(prev);
+        });
+        $list.append($listElement);
+        for (var i = 0; i < data.length; i++) {
+            $listElement = $("<option></option>");
+            $listElement.val(data[i].id);
+            $listElement.text(data[i].name);
+            $listElement.dblclick(function () {
+                callForCatList($(this).val());
+            });
+            $list.append($listElement);
+        }
+    }
+}
+
 var addTemplateString = "<div class='panel panel-default'>" +
     "<div class='row addContainer vertical-align'>" +
     "<div class='col-md-2 centered'>" +
@@ -365,9 +451,7 @@ var addTemplateString = "<div class='panel panel-default'>" +
     "</div>" +
     "<div class='h3 addPrice'>" +
     "<b>{{=it.price}}</b>" +
-    "<p class='h6 addPriceType'>" +
-    "{{=it.priceType}}" +
-    "</p>" +
+    "<p class='h6 addPriceType'> kup teraz</p>" +
     "</div>" +
     "<div class='h6 addEndDate'><span>{{=it.lastTime}}</span>&nbsp;<span>{{=it.endDate}}</span></div>" +
     "<div class='h6 addPriceWithDelivery'><b>{{=it.priceWithDelivery}}</b> z dostawą</div>" +

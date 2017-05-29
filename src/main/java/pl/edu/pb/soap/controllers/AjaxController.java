@@ -26,14 +26,20 @@ public class AjaxController {
         return CategoryUtils.getCategoriesByParent(parent, result);
     }
 
+    @RequestMapping("/rest/categories/list/sybling")
+    public List<Category> getCategoriesBySybling(@RequestParam("sybling") Integer sybling) {
+        List<Category> result = allegro.getCategories();
+        return CategoryUtils.getCategoriesBySybling(sybling, result);
+    }
+
     @RequestMapping("/rest/categories/content")
     public AddsContainer getAdds(@RequestParam("category") Integer category, @RequestParam("size") Integer size, @RequestParam("offset") Integer offset) {
         return allegro.getAddsFromCategory(category, offset, size);
     }
 
     @RequestMapping("/rest/items/search")
-    public AddsContainer search(@RequestParam("q") String query, @RequestParam("size") Integer size, @RequestParam("offset") Integer offset) {
-        return allegro.search(query, offset, size);
+    public AddsContainer search(@RequestParam("q") String query, @RequestParam("size") Integer size, @RequestParam("offset") Integer offset, @RequestParam("cat") Integer category) {
+        return allegro.search(query, offset, size,category);
     }
 
     @RequestMapping(value = "/rest/navigation/breadcrumbs")

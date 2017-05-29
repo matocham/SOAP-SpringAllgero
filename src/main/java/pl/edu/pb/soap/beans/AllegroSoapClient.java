@@ -13,8 +13,10 @@ import pl.edu.pb.soap.utils.CategoryUtils;
 import sandboxwebapi.*;
 
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 public class AllegroSoapClient {
     private static final Logger log = LoggerFactory.getLogger(AllegroSoapClient.class);
     public static final String ALLEGRO_SANDBOX_KEY = "allegro.sandbox.key";
+    public static final String ALLEGRO_SANDOBX_USER = "allegro.sandobx.user";
+    public static final String ALLEGRO_SANDBOX_PASSWORD = "allegro.sandbox.password";
 
     private String sessionId;
     List<Category> categories;
@@ -38,6 +42,7 @@ public class AllegroSoapClient {
         this.env = env;
         serviceService = new ServiceService();
         allegro = serviceService.getServicePort();
+        sessionId = login(env.getProperty(ALLEGRO_SANDOBX_USER), env.getProperty(ALLEGRO_SANDBOX_PASSWORD));
     }
 
     public String login(String username, String password) {
@@ -118,9 +123,10 @@ public class AllegroSoapClient {
                 for (PriceInfoType priceInfoType : item.getPriceInfo().getItem()) {
                     if (priceInfoType.getPriceType().equals("buyNow")) {
                         add.setPrice(priceInfoType.getPriceValue() + " zł");
-                        add.setPriceType("kup teraz");
                     } else if (priceInfoType.getPriceType().equals("withDelivery")) {
                         add.setPriceWithDelivery(priceInfoType.getPriceValue() + " zł");
+                    } else if (priceInfoType.getPriceType().equals("bidding")) {
+                        add.setPriceBidding(priceInfoType.getPriceValue() + " zł");
                     }
                 }
                 add.setTitle(item.getItemTitle());
@@ -148,33 +154,48 @@ public class AllegroSoapClient {
                         }
                     }
                 }
+                add.setOwner(item.getSellerInfo().getUserLogin());
+                add.setCategory(item.getCategoryId());
                 foundAdds.add(add);
             }
             container.setAdds(foundAdds);
+        } else {
+            container.setAdds(Collections.emptyList());
         }
     }
 
-    public AddsContainer search(String query, int offset, int size) {
+    public AddsContainer search(String query, int offset, int size, long category) {
         AddsContainer container = new AddsContainer();
         Integer scope = 0;
-
+        ArrayOfFilteroptionstype filter = new ArrayOfFilteroptionstype();
         DoGetItemsListRequest itemsreq = new DoGetItemsListRequest();
         itemsreq.setWebapiKey(env.getProperty(ALLEGRO_SANDBOX_KEY)); // Klucz WebApi
         itemsreq.setResultOffset(offset);
         itemsreq.setResultSize(size);
         itemsreq.setResultScope(scope);
 
-        FilterOptionsType fotcat;
-        fotcat = new FilterOptionsType();
-        fotcat.setFilterId("search");
+        FilterOptionsType searchFilter;
+        searchFilter = new FilterOptionsType();
+        searchFilter.setFilterId("search");
 
-        ArrayOfString categories;
-        categories = new ArrayOfString();
-        categories.getItem().add(query);
-        fotcat.setFilterValueId(categories);
+        ArrayOfString searchValue;
+        searchValue = new ArrayOfString();
+        searchValue.getItem().add(query);
+        searchFilter.setFilterValueId(searchValue);
 
-        ArrayOfFilteroptionstype filter = new ArrayOfFilteroptionstype();
-        filter.getItem().add(fotcat);
+        if (category != -1 && category != 0) {
+            FilterOptionsType categoryFilter;
+            categoryFilter = new FilterOptionsType();
+            categoryFilter.setFilterId("category");
+
+            ArrayOfString categoryValue;
+            categoryValue = new ArrayOfString();
+            categoryValue.getItem().add(category + "");
+            categoryFilter.setFilterValueId(categoryValue);
+            filter.getItem().add(categoryFilter);
+        }
+
+        filter.getItem().add(searchFilter);
         itemsreq.setFilterOptions(filter);
         DoGetItemsListResponse doGetItemsList = allegro.doGetItemsList(itemsreq);
 
@@ -200,10 +221,85 @@ public class AllegroSoapClient {
     }
 
     public List<Category> getCategories() {
-        if(categories == null){
+        if (categories == null) {
             categories = getCategoriesSoap();
         }
         return categories;
+    }
+
+    public Advertisement getAdd(long id) {
+        DoGetItemsInfoRequest infoRequest = new DoGetItemsInfoRequest();
+        infoRequest.setGetDesc(1);
+        infoRequest.setGetAttribs(1);
+        infoRequest.setGetImageUrl(1);
+        infoRequest.setSessionHandle(getSessionId());
+
+        ArrayOfLong ids = new ArrayOfLong();
+        ids.getItem().add(id);
+        infoRequest.setItemsIdArray(ids);
+        DoGetItemsInfoResponse infoResponse = allegro.doGetItemsInfo(infoRequest);
+        for (ItemInfoStruct item : infoResponse.getArrayItemListInfo().getItem()) {
+            Advertisement adv = new Advertisement();
+            adv.setTitle(item.getItemInfo().getItName());
+            adv.setPrice(item.getItemInfo().getItBuyNowPrice() + " zł");
+            adv.setOwner(item.getItemInfo().getItSellerLogin());
+            adv.setPriceBidding(item.getItemInfo().getItPrice() + " zł");
+            adv.setDescription(item.getItemInfo().getItDescription());
+            adv.setCategory(item.getItemCats().getItem().get(item.getItemCats().getItem().size() - 1).getCatId());
+            for (ItemImageList imageList : item.getItemImages().getItem()) {
+                adv.setImageUrl(imageList.getImageUrl());
+                break;
+            }
+            if (item.getItemInfo().getItState() == 8) {
+                adv.setState("Używany");
+            } else {
+                adv.setState("Nowy");
+            }
+            for (AttribStruct attribStruct : item.getItemAttribs().getItem()) {
+                if (attribStruct.getAttribName().equals("Stan")) {
+                    adv.setState(attribStruct.getAttribValues().getItem().get(0));
+                }
+            }
+            long endTimestamp = item.getItemInfo().getItEndingTime();
+            if (endTimestamp != 0) {
+                Timestamp stamp = new Timestamp(endTimestamp * 1000);
+                Date date = new Date(stamp.getTime());
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
+                adv.setEndDate(dateFormat.format(date));
+                Date currentDate = new Date();
+                Map<TimeUnit, Long> interval;
+                if (currentDate.before(date)) {
+                    interval = computeDiff(currentDate, date);
+                } else {
+                    interval = computeDiff(date, currentDate);
+                }
+                if (interval.get(TimeUnit.DAYS) > 0) {
+                    adv.setLastTime(interval.get(TimeUnit.DAYS) + " dni");
+                } else {
+                    String result = interval.get(TimeUnit.HOURS) + ":";
+                    result += interval.get(TimeUnit.MINUTES) + ":";
+                    result += interval.get(TimeUnit.SECONDS);
+                    adv.setLastTime(result + " godzin");
+                }
+            }
+            return adv;
+        }
+        return new Advertisement();
+    }
+
+    private Map<TimeUnit, Long> computeDiff(Date date1, Date date2) {
+        long diffInMillies = date2.getTime() - date1.getTime();
+        List<TimeUnit> units = new ArrayList<>(EnumSet.allOf(TimeUnit.class));
+        Collections.reverse(units);
+        Map<TimeUnit, Long> result = new LinkedHashMap<>();
+        long milliesRest = diffInMillies;
+        for (TimeUnit unit : units) {
+            long diff = unit.convert(milliesRest, TimeUnit.MILLISECONDS);
+            long diffInMilliesForUnit = unit.toMillis(diff);
+            milliesRest = milliesRest - diffInMilliesForUnit;
+            result.put(unit, diff);
+        }
+        return result;
     }
 
     public String getSessionId() {

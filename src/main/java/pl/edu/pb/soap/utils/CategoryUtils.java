@@ -2,6 +2,7 @@ package pl.edu.pb.soap.utils;
 
 import pl.edu.pb.soap.restModel.Category;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,9 +15,18 @@ public class CategoryUtils {
         List<Category> result = allCategories
                 .stream()
                 .filter(cat -> cat.getParentId() == parentId)
-                .sorted(Comparator.comparingInt(x -> x.getPosition()))
+                .sorted(Comparator.comparing(x -> x.getName()))
                 .collect(Collectors.toList());
         return  result;
+    }
+
+    public static List<Category> getCategoriesBySybling(int syblingId, List<Category> allCategories){
+        for(Category catt : allCategories){
+            if(catt.getId() == syblingId){
+                return  getCategoriesByParent(catt.getParentId(),allCategories);
+            }
+        }
+        return Collections.emptyList();
     }
 
     public static List<Category> getTopLevelCategories(List<Category> allCategories){

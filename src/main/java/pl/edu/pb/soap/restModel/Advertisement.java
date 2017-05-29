@@ -7,12 +7,15 @@ public class Advertisement {
     long id;
     String title;
     String price;
-    String priceType;
+    String priceBidding;
     String priceWithDelivery;
     String lastTime;
     String state;
     String endDate;
     String imageUrl;
+    String owner;
+    String description;
+    long category;
 
     public Advertisement() {
 
@@ -74,19 +77,43 @@ public class Advertisement {
         this.endDate = endDate;
     }
 
-    public String getPriceType() {
-        return priceType;
-    }
-
-    public void setPriceType(String priceType) {
-        this.priceType = priceType;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public long getCategory() {
+        return category;
+    }
+
+    public void setCategory(long category) {
+        this.category = category;
+    }
+
+    public String getPriceBidding() {
+        return priceBidding;
+    }
+
+    public void setPriceBidding(String priceBidding) {
+        this.priceBidding = priceBidding;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

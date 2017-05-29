@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="baseNoCategories :: pageHead">
+</head>
+<body>
+<script type="application/javascript" th:inline="javascript">
+    var category = /*[[${add.category}]]*/"test";
+    var breadcrumbsLink = /*[[@{/rest/navigation/breadcrumbs}]]*/ 'test';
+    $(document).ready(function () {
+        $("#navigation").hide();
+        if(category !="0"){
+            callForBreadcrumbs(category);
+        }
+    });
+</script>
+<div class="container-fluid">
+    <div th:replace="baseNoCategories :: header"></div>
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <ol id="navigation" class="breadcrumb"></ol>
+            <h1 th:text="${add.title}">Title</h1>
+            <div class="row">
+                <div th:if="${add.imageUrl}" class="col-md-4" id="images">
+                    <img src="#" th:src="${add.imageUrl}" alt="image to place"/>
+                </div>
+                <div th:unless="${add.imageUrl}" class="col-md-4" id="image-blank">
+                    <img src="#" th:src="@{/resources/images/noimage.png}"
+                         alt="image to place"/>
+                </div>
+                <div class="col-md-4 col-md-offset-1 paddTop" id="details">
+                    <div class='h5 owner' th:text="'Wystawiony przez: '+${add.owner}">użytkownik</div>
+                    <div class='h5 state' th:text="'Stan: '+${add.state}">Nowy</div>
+                    <div th:if="${add.price != '0.0 zł'}" class='h3 price'>
+                        <b th:text="${add.price}">cena</b>
+                        <p class='h6 priceType'>kup teraz</p>
+                    </div>
+                    <div th:if="${add.priceBidding != '0.0 zł'}" class="h4 price">
+                        <b th:text="${add.priceBidding}">cena</b>
+                        <p class='h6 priceType'>licytacja</p>
+                    </div>
+                    <div th:if="${add.endDate}" class='h6 addEndDate'>
+                        <span th:text="'Do końca: '+${add.lastTime}">czas trwania</span><br/>
+                        <span th:text="'Koniec: '+${add.endDate}">koniec</span>
+                    </div>
+                    <div th:if="${add.priceWithDelivery}" class='h6 priceWithDelivery'>
+                        <b th:text="${add.priceWithDelivery}">cena</b> z dostawą
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="simpleDescription">
+                <h2>Opis</h2>
+                <div th:utext="${add.description}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

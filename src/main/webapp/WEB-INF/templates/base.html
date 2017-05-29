@@ -17,6 +17,7 @@
         var baseCategoryLink = /*[[@{/categories/show}]]*/ 'test';
         var baseAddLink = /*[[@{/adds/show}]]*/ 'test';
         var noImageLink = /*[[@{/resources/images/noimage.png}]]*/ "test";
+        var breadcrumbsLink = /*[[@{/rest/navigation/breadcrumbs}]]*/ 'test';
         var parentCategory = getUrlParameter('category');
         if (!parentCategory) {
             parentCategory = '0';
@@ -29,6 +30,7 @@
                 }
             });
             callForCategories(parentCategory, link, baseCategoryLink, 0, 20);
+            $('#catSearch').val(parentCategory);
         });
     </script>
 </head>
@@ -38,8 +40,10 @@
         <div class="row header vertical-align" id="header" th:fragment="header">
             <div class="col-md-2 centered">
                 <div class="text-left">
-                    <h1 id="title" class="header-title">Allegro</h1>
-                    <h2 id="title2" class="header-title"><em>Bis</em></h2>
+                    <a th:href="@{/}">
+                        <h1 id="title" class="header-title">Allegro</h1>
+                        <h2 id="title2" class="header-title"><em>Bis</em></h2>
+                    </a>
                 </div>
             </div>
             <div class="col-md-7 col-md-offset-1">
@@ -48,13 +52,13 @@
                         <label class="sr-only" for="q">Search</label>
                         <input type="text" class="form-control" style="width:500px" placeholder="Szukaj" name="q"
                                id="q"/>
+                        <input type="hidden" id="catSearch" name="category"/>
                     </div>
                     <button type="submit" class="btn btn-default" style="width:100px">Szukaj</button>
                 </form>
             </div>
             <div class="col-md-2 centered" id="loginHolder">
-                <span class="sr-only" id="loggeedAs">Jesteś zalogowany jako</span>
-                <button id="loginButton" class="btn btn-default btn-block">Zaloguj się</button>
+                <a id="addItem" class="btn btn-default btn-block" th:href="@{/item/add}">Dodaj ogłoszenie</a>
             </div>
         </div>
     </div>

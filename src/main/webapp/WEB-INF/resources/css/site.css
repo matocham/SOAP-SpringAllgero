@@ -158,3 +158,39 @@
     -moz-border-radius: 10px;
     padding-left:10px !important;
 }
+
+.paddTop{
+    padding-top: 20px;
+}
+
+.state{
+    color:darkslateblue;
+}
+
+.owner{
+    color:#5336e1;
+}
+
+.price{
+    color: #3356b4;
+    margin-top: 5px !important;
+    margin-bottom: 1px !important;
+}
+
+.priceType{
+    display: inline-block;
+    height: 100%;
+    line-height: 100%;
+    margin-top:0px;
+    margin-bottom: 0px;
+    text-align: center;
+    color: darkred;
+}
+
+.priceWithDelivery{
+    color:black;
+}
+
+.previewImage{
+    width:100%;
+}

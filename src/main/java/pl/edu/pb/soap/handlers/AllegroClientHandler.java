@@ -17,7 +17,7 @@ public class AllegroClientHandler implements SOAPHandler<SOAPMessageContext> {
     public static final String WEBAPI_KEY = "s7bc4abb";
     public static final String WEBAPI_KEY_NODE_NAME = "webapiKey";
     public static final String COUNTRY_ID_NODE_NAME = "countryId";
-
+    public static final String COUNTRY_CODE_NODE_NAME = "countryCode";
     @Override
     public boolean handleMessage(SOAPMessageContext context) {
 
@@ -35,7 +35,7 @@ public class AllegroClientHandler implements SOAPHandler<SOAPMessageContext> {
                 Node request = body.getFirstChild();
                 for(int i=0; i<request.getChildNodes().getLength();i++){
                     Node child = request.getChildNodes().item(i);
-                    if(child.getNodeName().equals(COUNTRY_ID_NODE_NAME)){
+                    if(child.getNodeName().equals(COUNTRY_ID_NODE_NAME) ||child.getNodeName().equals(COUNTRY_CODE_NODE_NAME)){
                         Node textNode = child.getFirstChild();
                         if(textNode != null){
                             textNode.setTextContent(POLAND_COUNTRY_CODE);

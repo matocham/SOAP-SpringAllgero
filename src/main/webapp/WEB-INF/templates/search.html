@@ -6,13 +6,14 @@
 <script type="application/javascript" th:inline="javascript">
     var offset = 0;
     var query = getUrlParameter("q");
-    query = query.replaceAll("+"," ");
+    query = query.replaceAll("+", " ");
     var searchLink = /*[[@{/rest/items/search}]]*/ 'test';
     $(document).ready(function () {
         $("#q").val(query);
         $("#noSearchResults").hide();
         $("#navigation").hide();
-            callForSearchResults(query, offset, itemsPageSize);
+        callForSearchResults(query, parentCategory, offset, itemsPageSize);
+        callForBreadcrumbs(parentCategory);
     });
 </script>
 <div class="container-fluid">
@@ -21,6 +22,7 @@
         <div th:replace="base :: leftCol"></div>
         <div class="col-md-8 categories">
             <h2>Wyniki wyszukiwania</h2>
+            <ol id="navigation" class="breadcrumb"></ol>
             <div class="loader box" id="searchLoader"></div>
             <div id="addverts">
             </div>
