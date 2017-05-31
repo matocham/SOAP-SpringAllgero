@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="base :: pageHead">
+</head>
+<body>
+<div class="container-fluid">
+    <div th:replace="base :: header"></div>
+    <div class="row">
+        <div th:replace="base :: leftCol"></div>
+        <div class="col-md-8">
+            <h2>Błąd podczas przetwarzania formularza</h2>
+            <p id="noItems" class="bg-danger has-error noResults">
+                <br/>Wystąpił błąd podczas przetwarzania żądania!<br/><br/>
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

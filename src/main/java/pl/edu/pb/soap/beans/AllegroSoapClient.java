@@ -206,16 +206,13 @@ public class AllegroSoapClient {
 
     public List<Breadcrumb> getPathTo(Integer category) {
         List<Breadcrumb> result = new ArrayList<>();
-        List<Category> allCategories = getCategories();
-        int currentSearchedCategory = category;
-        while (currentSearchedCategory != 0) {
-            for (Category cat : allCategories) {
-                if (cat.getId() == currentSearchedCategory) {
-                    result.add(0, new Breadcrumb(cat.getName(), cat.getId()));
-                    currentSearchedCategory = cat.getParentId();
-                    break;
-                }
-            }
+        DoGetCategoryPathRequest request = new DoGetCategoryPathRequest();
+        request.setCategoryId(category);
+        request.setSessionId(getSessionId());
+        DoGetCategoryPathResponse response = allegro.doGetCategoryPath(request);
+        List<CategoryData> categories = response.getCategoryPath().getItem();
+        for(CategoryData categoryData : categories){
+            result.add(new Breadcrumb(categoryData.getCatName(), categoryData.getCatId()));
         }
         return result;
     }

@@ -8,6 +8,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import pl.edu.pb.soap.beans.AllegroSoapClient;
 import pl.edu.pb.soap.restModel.Advertisement;
 
@@ -53,5 +54,13 @@ public class MainController {
     @RequestMapping(value = "/item/add", method = RequestMethod.GET)
     public String addItem() {
         return "addItem";
+    }
+
+    @RequestMapping(value = "/item/add", method = RequestMethod.POST)
+    public String addItemFrom(@RequestParam("title") String title,@RequestParam("description") String description,
+                              @RequestParam("leftCategory") long category,@RequestParam("price") double price,
+                              @RequestParam("shippingPrice") double shippingPrice, @RequestParam("image") MultipartFile image) {
+        System.out.println("xxx");
+        return "successPage";
     }
 }
