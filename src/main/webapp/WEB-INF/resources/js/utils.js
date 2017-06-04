@@ -435,6 +435,132 @@ function processData(data) {
     }
 }
 
+function callForMyAdds(offsetVal, sizeVal) {
+    $("#addverts").find("div").remove();
+    $.ajax({
+        url: myAddsLinks,
+        method: "GET",
+        success: function (data, status, object1) {
+            console.log(data);
+            totalItems = data.totalCount;
+            if (totalItems == 0) {
+                $("#noItems").show();
+            } else {
+                refreshMyAddsNavigation();
+
+                var adds = $("#addverts");
+                adds.find("div").remove();
+                var downloadedAdds = data.adds;
+                if (downloadedAdds) {
+                    var addTemplate = doT.template(myAddTemplateString);
+                    for (var i = 0; i < downloadedAdds.length; i++) {
+                        if (!downloadedAdds[i].imageUrl) {
+                            downloadedAdds[i].imageUrl = noImageLink;
+                        }
+                        var result = addTemplate(downloadedAdds[i]);
+                        adds.append($.parseHTML(result));
+                    }
+                }
+            }
+        },
+        error: function (object1, status, errorThrown) {
+            console.log(errorThrown);
+            setTimeout(callForMyAdds, 500,offsetVal, sizeVal);
+        },
+        data: {offset: offsetVal, size: sizeVal},
+        beforeSend: function () {
+            $('#myAddsLoader').show();
+        },
+        complete: function () {
+            $('#myAddsLoader').hide();
+        },
+    })
+}
+
+function refreshMyAddsNavigation() {
+    $(".pagination li").remove();
+    if (totalItems > 0) {
+        var $previous = $.parseHTML(previousString);
+        var $next = $.parseHTML(nextString);
+        var currentPage = parseInt(offset / itemsPageSize) + 1;
+        var $paginationList = $(".pagination");
+        var numberOfPages = Math.ceil(totalItems / itemsPageSize);
+        if (numberOfPages > 1) {
+            $paginationList.append($previous);
+            for (var i = 1; i < numberOfPages + 1; i++) {
+                var $paginationElement = $("<li></li>");
+                if (i != 1 && i != numberOfPages) {
+                    if (i - currentPage < 6 && i - currentPage > -5) {
+                        var $linkElement = $("<a></a>");
+                        $paginationElement.append($linkElement);
+                        $linkElement.attr("href", "#");
+                        $linkElement.text(i);
+                        if (currentPage == i) {
+                            $paginationElement.attr("class", "active");
+                        } else {
+                            $paginationElement.removeAttr("class");
+                        }
+
+                        $paginationList.append($paginationElement);
+                        $linkElement.on("click", function () {
+                            var selectedValue = $(this).text();
+                            offset = (selectedValue - 1) * itemsPageSize;
+                            callForMyAdds(offset, itemsPageSize);
+                        })
+                    } else if (i < currentPage) {
+                        i = currentPage - 5;
+                        $paginationElement.attr("class", "disabled");
+                        var $linkElement = $("<a></a>");
+                        $paginationElement.append($linkElement);
+                        $linkElement.attr("href", "#");
+                        $linkElement.text("...");
+                        $paginationList.append($paginationElement);
+                    } else if (i > currentPage) {
+                        i = numberOfPages - 1;
+                        $paginationElement.attr("class", "disabled");
+                        $paginationElement.append($linkElement);
+                        $linkElement.attr("href", "#");
+                        $linkElement.text("...");
+                        $paginationList.append($paginationElement);
+                    }
+                } else {
+                    var $linkElement = $("<a></a>");
+                    $paginationElement.append($linkElement);
+                    $linkElement.attr("href", "#");
+                    $linkElement.text(i);
+                    if (currentPage == i) {
+                        $paginationElement.attr("class", "active");
+                    } else {
+                        $paginationElement.removeAttr("class");
+                    }
+                    $paginationList.append($paginationElement);
+                    $linkElement.on("click", function () {
+                        var selectedValue = $(this).text();
+                        offset = (selectedValue - 1) * itemsPageSize;
+                        callForMyAdds(offset, itemsPageSize);
+                    })
+                }
+            }
+            $paginationList.append($next);
+
+            $paginationList.find("a[aria-label=Previous]").on("click", function () {
+                if (offset > 0) {
+                    $("#addverts li").remove();
+                    offset = offset - itemsPageSize;
+                    callForMyAdds(offset, itemsPageSize);
+                }
+            });
+
+            $paginationList.find("a[aria-label=Next]").on("click", function () {
+                if (offset + itemsPageSize < totalItems) {
+                    $("#addverts li").remove();
+                    offset = offset + itemsPageSize;
+                    callForMyAdds(offset, itemsPageSize);
+                }
+            });
+        }
+    }
+}
 var addTemplateString = "<div class='panel panel-default'>" +
     "<div class='row addContainer vertical-align'>" +
     "<div class='col-md-2 centered'>" +
@@ -445,6 +571,30 @@ var addTemplateString = "<div class='panel panel-default'>" +
     "<div class='col-md-10'>" +
     "<div class='h3 addHeader'>" +
     "<a href='{{=it.addLink}}'>{{=it.title}}</a>" +
+    "</div>" +
+    "<div class='h6 addState'>" +
+    "{{=it.state}}" +
+    "</div>" +
+    "<div class='h3 addPrice'>" +
+    "<b>{{=it.price}}</b>" +
+    "<p class='h6 addPriceType'> kup teraz</p>" +
+    "</div>" +
+    "<div class='h6 addEndDate'><span>{{=it.lastTime}}</span>&nbsp;<span>{{=it.endDate}}</span></div>" +
+    "<div class='h6 addPriceWithDelivery'><b>{{=it.priceWithDelivery}}</b> z dostawą</div>" +
+    "</div>" +
+    "</div>" +
+    "</div>";
+
+var myAddTemplateString = "<div class='panel panel-default'>" +
+    "<div class='row addContainer vertical-align'>" +
+    "<div class='col-md-2 centered'>" +
+    "<a href='#' class='thumbnail autoMargin'>" +
+    "<img src='{{=it.imageUrl}}'/>" +
+    "</a>" +
+    "</div>" +
+    "<div class='col-md-10'>" +
+    "<div class='h3 addHeader'>" +
+    "<a href='#'>{{=it.title}}</a>" +
     "</div>" +
     "<div class='h6 addState'>" +
     "{{=it.state}}" +

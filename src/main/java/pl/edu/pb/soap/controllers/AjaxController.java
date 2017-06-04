@@ -8,6 +8,7 @@ import pl.edu.pb.soap.beans.AllegroSoapClient;
 import pl.edu.pb.soap.restModel.AddsContainer;
 import pl.edu.pb.soap.restModel.Breadcrumb;
 import pl.edu.pb.soap.restModel.Category;
+import pl.edu.pb.soap.restModel.EndingInfo;
 import pl.edu.pb.soap.utils.CategoryUtils;
 
 import java.util.List;
@@ -39,11 +40,23 @@ public class AjaxController {
 
     @RequestMapping("/rest/items/search")
     public AddsContainer search(@RequestParam("q") String query, @RequestParam("size") Integer size, @RequestParam("offset") Integer offset, @RequestParam("cat") Integer category) {
-        return allegro.search(query, offset, size,category);
+        return allegro.search(query, offset, size, category);
     }
 
     @RequestMapping(value = "/rest/navigation/breadcrumbs")
-    public List<Breadcrumb> getAddImage(Integer category) {
+    public List<Breadcrumb> getBreadcrubms(Integer category) {
         return allegro.getPathTo(category);
+    }
+
+    @RequestMapping(value = "/rest/navigation/ending")
+    public EndingInfo isEnding(Integer category) {
+        List<Category> result = allegro.getCategories();
+        boolean isEmpty = CategoryUtils.getCategoriesByParent(category, result).isEmpty();
+        return new EndingInfo(isEmpty);
+    }
+
+    @RequestMapping("/rest/adds/my")
+    public AddsContainer getMyAdds(@RequestParam("size") Integer size, @RequestParam("offset") Integer offset) {
+        return allegro.getMyAdds(offset, size);
     }
 }

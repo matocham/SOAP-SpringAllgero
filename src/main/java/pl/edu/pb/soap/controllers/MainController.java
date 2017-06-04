@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import pl.edu.pb.soap.beans.AllegroSoapClient;
+import pl.edu.pb.soap.model.AddItemResult;
 import pl.edu.pb.soap.restModel.Advertisement;
+
+import java.io.IOException;
 
 /**
  * Created by Mateusz on 26.04.2017.
@@ -51,16 +54,29 @@ public class MainController {
         return "showItem";
     }
 
+    @RequestMapping(value = "/add/my", method = RequestMethod.GET)
+    public String getMyAdds() {
+        return "myAdds";
+    }
+
     @RequestMapping(value = "/item/add", method = RequestMethod.GET)
     public String addItem() {
         return "addItem";
     }
 
     @RequestMapping(value = "/item/add", method = RequestMethod.POST)
-    public String addItemFrom(@RequestParam("title") String title,@RequestParam("description") String description,
-                              @RequestParam("leftCategory") long category,@RequestParam("price") double price,
-                              @RequestParam("shippingPrice") double shippingPrice, @RequestParam("image") MultipartFile image) {
-        System.out.println("xxx");
-        return "successPage";
+    public String addItemFrom(Model model, @RequestParam("title") String title, @RequestParam("description") String description,
+                              @RequestParam("leftCategory") int category, @RequestParam("price") double price,
+                              @RequestParam("shippingPrice") double shippingPrice, @RequestParam("image") MultipartFile image,
+                              @RequestParam("deliveryType") int deliveryType) throws IOException {
+        title = new String(title.getBytes("ISO-8859-1"), "UTF-8");
+        description = new String(description.getBytes("ISO-8859-1"), "UTF-8");
+        AddItemResult result = client.createNewAdd(title, description, price, shippingPrice, category, deliveryType, image);
+        model.addAttribute("result", result);
+        if (result.getMessageId() == -1) {
+            return "errorPage";
+        } else {
+            return "successPage";
+        }
     }
 }

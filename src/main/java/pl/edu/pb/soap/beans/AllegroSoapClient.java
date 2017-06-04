@@ -5,14 +5,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import pl.edu.pb.soap.model.AddItemResult;
 import pl.edu.pb.soap.restModel.AddsContainer;
 import pl.edu.pb.soap.restModel.Advertisement;
 import pl.edu.pb.soap.restModel.Breadcrumb;
 import pl.edu.pb.soap.restModel.Category;
+import pl.edu.pb.soap.utils.AddBuilder;
 import pl.edu.pb.soap.utils.CategoryUtils;
 import sandboxwebapi.*;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -31,7 +35,7 @@ public class AllegroSoapClient {
 
     private String sessionId;
     List<Category> categories;
-
+    List<SellFormType> formFields;
     Environment env;
 
     ServiceService serviceService;
@@ -211,7 +215,7 @@ public class AllegroSoapClient {
         request.setSessionId(getSessionId());
         DoGetCategoryPathResponse response = allegro.doGetCategoryPath(request);
         List<CategoryData> categories = response.getCategoryPath().getItem();
-        for(CategoryData categoryData : categories){
+        for (CategoryData categoryData : categories) {
             result.add(new Breadcrumb(categoryData.getCatName(), categoryData.getCatId()));
         }
         return result;
@@ -301,5 +305,111 @@ public class AllegroSoapClient {
 
     public String getSessionId() {
         return sessionId;
+    }
+
+    public AddItemResult createNewAdd(String title, String description,
+                                      double price, double deliveryPrice,
+                                      int category, int deliveryType, MultipartFile image) throws IOException {
+        List<SellFormType> fieldsForCat = fieldsForCat(category);
+        int identifier = (int) System.currentTimeMillis();
+        DoNewAuctionExtRequest request = AddBuilder.buildRequest(title, description, price, deliveryPrice, category, deliveryType, image, getSessionId(), identifier);
+        request = AddBuilder.appendMissingFields(request,fieldsForCat);
+        DoNewAuctionExtResponse response = allegro.doNewAuctionExt(request);
+
+        DoVerifyItemRequest verifyRequest = new DoVerifyItemRequest();
+        verifyRequest.setLocalId(identifier);
+        verifyRequest.setSessionHandle(getSessionId());
+        DoVerifyItemResponse verifyItemResponse = allegro.doVerifyItem(verifyRequest);
+
+        AddItemResult addItemResult = new AddItemResult();
+        switch (verifyItemResponse.getItemListed()) {
+            case -1:
+                addItemResult.setResultMessage("Wystąpił błąd podczas dodawania oferty, spróbuj ponownie później");
+                break;
+            case 0:
+                addItemResult.setResultMessage("Oferta czeka w kolejce na wystawienie");
+                break;
+            case 1:
+                addItemResult.setResultMessage("Oferta została wystawiona poprawnie");
+                break;
+            case 2:
+                addItemResult.setResultMessage("Oferta czeka na wystawienie");
+                break;
+            case 3:
+                addItemResult.setResultMessage("Oferta czeka na ponowne wystawienie");
+                break;
+        }
+        Timestamp stamp = new Timestamp(verifyItemResponse.getItemStartingTime() * 1000);
+        addItemResult.setPublishTime(new Date(stamp.getTime()));
+        addItemResult.setMessageId(verifyItemResponse.getItemListed());
+        return addItemResult;
+    }
+
+    private List<SellFormType> fieldsForCat(int category){
+        List<SellFormType> fields = new ArrayList<>();
+        List<Breadcrumb> categoryPath = getPathTo(category);
+        for( SellFormType formType : getFormFileds()){
+            if(contains(formType.getSellFormCat(),categoryPath)){
+                fields.add(formType);
+            }
+        }
+        return  fields;
+    }
+
+    private boolean contains(int category, List<Breadcrumb> categoryPath){
+        for(Breadcrumb b : categoryPath){
+            if(b.getId() == category){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<SellFormType> getFormFileds() {
+        if(formFields == null){
+            DoGetSellFormFieldsExtRequest request = new DoGetSellFormFieldsExtRequest();
+            request.setWebapiKey(env.getProperty(ALLEGRO_SANDBOX_KEY));
+            request.setCountryCode(1);
+            DoGetSellFormFieldsExtResponse response = allegro.doGetSellFormFieldsExt(request);
+            formFields =response.getSellFormFields().getItem();
+        }
+        return formFields;
+    }
+
+    public int getUserId(){
+        DoGetUserIDRequest request = new DoGetUserIDRequest();
+        request.setUserLogin(env.getProperty(ALLEGRO_SANDOBX_USER));
+        request.setWebapiKey(env.getProperty(ALLEGRO_SANDBOX_KEY));
+        DoGetUserIDResponse response = allegro.doGetUserID(request);
+        return response.getUserId();
+    }
+
+    public AddsContainer getMyAdds(int offset, int size) {
+        AddsContainer container = new AddsContainer();
+        Integer scope = 0;
+
+        DoGetItemsListRequest itemsreq = new DoGetItemsListRequest();
+        itemsreq.setWebapiKey(env.getProperty(ALLEGRO_SANDBOX_KEY)); // Klucz WebApi
+        itemsreq.setResultOffset(offset);
+        itemsreq.setResultSize(size);
+        itemsreq.setResultScope(scope);
+
+        FilterOptionsType userIdFilter;
+        userIdFilter = new FilterOptionsType();
+        userIdFilter.setFilterId("userId");
+
+        ArrayOfString userId;
+        userId = new ArrayOfString();
+        userId.getItem().add(getUserId() + "");
+        userIdFilter.setFilterValueId(userId);
+
+        ArrayOfFilteroptionstype filter = new ArrayOfFilteroptionstype();
+        filter.getItem().add(userIdFilter);
+        itemsreq.setFilterOptions(filter);
+        DoGetItemsListResponse doGetItemsList = allegro.doGetItemsList(itemsreq);
+
+        container.setTotalCount(doGetItemsList.getItemsCount());
+        populateResultsList(container, doGetItemsList);
+        return container;
     }
 }

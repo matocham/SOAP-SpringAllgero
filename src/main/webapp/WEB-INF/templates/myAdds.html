@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="base :: pageHead">
+</head>
+<body>
+<script type="application/javascript" th:inline="javascript">
+    var offset = 0;
+    var myAddsLinks = /*[[@{/rest/adds/my}]]*/ 'test';
+    $(document).ready(function () {
+        $("#noItems").hide();
+        callForMyAdds(offset, itemsPageSize);
+    });
+</script>
+<div class="container-fluid">
+    <div th:replace="base :: header"></div>
+    <div class="row">
+        <div th:replace="base :: leftCol"></div>
+        <div class="col-md-8 categories">
+            <h2>Twoje ogłoszenia</h2>
+            <div class="loader box" id="myAddsLoader"></div>
+            <div id="addverts">
+            </div>
+            <p id="noItems" class="bg-danger has-error noResults">
+                <br/>Nie wystawiłeś jeszcze żadnego ogłoszenia<br/><br/>
+            </p>
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</body>
+</html>

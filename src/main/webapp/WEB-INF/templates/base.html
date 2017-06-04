@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="pageHead">
     <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Allegro Bis</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}"></link>
@@ -46,8 +47,8 @@
                     </a>
                 </div>
             </div>
-            <div class="col-md-7 col-md-offset-1">
-                <form class="navbar-form navbar-left" role="search" method="get" th:action="@{/search}" id="searchForm">
+            <div class="col-md-6 col-md-offset-1">
+                <form class="navbar-form navbar-left" role="search" method="get" th:action="@{/search}" id="searchForm" accept-charset="UTF-8">
                     <div class="form-group">
                         <label class="sr-only" for="q">Search</label>
                         <input type="text" class="form-control" style="width:500px" placeholder="Szukaj" name="q"
@@ -59,6 +60,9 @@
             </div>
             <div class="col-md-2 centered" id="loginHolder">
                 <a id="addItem" class="btn btn-default btn-block" th:href="@{/item/add}">Dodaj ogłoszenie</a>
+            </div>
+            <div class="col-md-1 centered" id="myAddsHolder">
+                <a id="myItems" class="btn btn-default btn-block" th:href="@{/add/my}">Moje</a>
             </div>
         </div>
     </div>

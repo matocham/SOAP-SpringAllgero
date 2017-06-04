@@ -10,7 +10,8 @@
         <div class="col-md-8">
             <h2>Dodano ogłoszenie</h2>
             <p id="noItems" class="bg-success has-success noResults">
-                <br/>Ogłoszenie powinno wkrótce pojawić się w serwisie<br/><br/>
+                <br/><span th:text="${result.resultMessage}"></span><br/>
+                <span th:text="'Ogłoszednie zostanie opublikowane '+${#dates.format(result.publishTime, 'dd-MM-YYYY')}"></span><br/><br/>
             </p>
         </div>
     </div>

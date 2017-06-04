@@ -16,6 +16,19 @@
             return isValidMoney;
         }, 'Podaj kwotwę w prawidłowym formacie!');
 
+        $.validator.addMethod('endingCategory', function (value, element) {
+            var isValid = false;
+            $.ajax({
+                url: /*[[@{/rest/navigation/ending}]]*/ 'test',
+                method: "GET",
+                async:false,
+                success: function (data, status, object1) {
+                   isValid = data.ending;
+                },
+                data:{category:value}
+            })
+            return isValid;
+        }, 'Musisz wybrać końcową kategorię!');
         $("#addItemForm").validate({
             debug: true,
             errorClass: "has-error",
@@ -25,7 +38,7 @@
                 title: {
                     required: true,
                     minlength: 10,
-                    maxlength: 100
+                    maxlength: 50
                 },
                 description: {
                     required: true,
@@ -34,6 +47,7 @@
                 },
                 leftCategory: {
                     required: true,
+                    endingCategory: true
                 },
                 image: {
                     required: true
@@ -42,20 +56,23 @@
                     required: true,
                     money: true,
                     number: true,
-                    range: [0.01, 99999]
+                    range: [1, 99999]
                 },
                 shippingPrice: {
                     required: true,
                     money: true,
                     number: true,
-                    range: [0.01, 99999]
+                    range: [1, 99999]
+                },
+                deliveryType: {
+                    required: true
                 }
             },
             messages: {
                 title: {
                     required: "To pole jest wymagane",
                     minlength: "Tytuł ogłoszenia musi mieć do najmniej 10 znaków",
-                    maxlength: "Tytuł gołoszenia nie może mieć więcej niż 100 znaków"
+                    maxlength: "Tytuł gołoszenia nie może mieć więcej niż 50 znaków"
                 },
                 description: {
                     required: "To pole jest wymagane",
@@ -63,7 +80,8 @@
                     maxlength: "Treść gołoszenia nie może mieć więcej niż 1000 znaków"
                 },
                 leftCategory: {
-                    required: "Wybierz kategorię"
+                    required: "Wybierz kategorię",
+                    endingCategory: 'Musisz wybrać końcową kategorię!'
                 },
                 image: {
                     required: "Dodaj zdjęcie do ogłoszenia"
@@ -72,13 +90,16 @@
                     required: "Podaj cenę produktu",
                     money: "Podaj poprawną kwotę",
                     number: "Podaj wartość numeryczną",
-                    range: "Podaj kwotę od 0.01 do 99999"
+                    range: "Podaj kwotę od 1 do 99999"
                 },
                 shippingPrice: {
                     required: "Podaj koszt dostawy",
                     money: "Podaj poprawną kwotę",
                     number: "Podaj wartość numeryczną",
-                    range: "Podaj kwotę od 0.01 do 99999"
+                    range: "Podaj kwotę od 1 do 99999"
+                },
+                deliveryType: {
+                    required: "Wybierz sposób dostawy produktów"
                 }
             },
             errorPlacement: function (error, element) {
@@ -112,7 +133,7 @@
                 }
                 this.defaultShowErrors();
             },
-            submitHandler: function(form) {
+            submitHandler: function (form) {
                 if ($(form).valid())
                     form.submit();
                 return false; // prevent normal form posting
@@ -124,7 +145,8 @@
     <div th:replace="baseNoCategories :: header"></div>
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <form method="post" th:action="@{/item/add}" class="horizontal-form" id="addItemForm"  enctype="multipart/form-data">
+            <form method="post" th:action="@{/item/add}" class="horizontal-form" id="addItemForm" accept-charset="UTF-8"
+                  enctype="multipart/form-data">
                 <div class="row">
                     <div class="col-sm-10 col-sm-offset-2">
                         <h2>Dodaj nowe ogłoszenie</h2>
@@ -160,6 +182,18 @@
                     <label for="price" class="col-sm-2 control-label">Cena</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control " name="price" id="price"/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="shippingPrice" class="col-sm-2 control-label">Typ dostawy</label>
+                    <div class="col-sm-10">
+                        <select class="form-control " name="deliveryType" id="deliveryType">
+                            <option value="36">paczka pocztowa ekonomiczna</option>
+                            <option value="38">paczka pocztowa priorytetowa</option>
+                            <option value="40">przesyłka pobraniowa</option>
+                            <option value="44">przesyłka kurierska</option>
+                            <option value="45">przesyłka kurierska pobraniowa</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group row">
