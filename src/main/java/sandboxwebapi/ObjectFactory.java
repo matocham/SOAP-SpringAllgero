@@ -2814,6 +2814,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link ArrayOfPostbuyformitemdealsadditionalservicestruct }
+     * 
+     */
+    public ArrayOfPostbuyformitemdealsadditionalservicestruct createArrayOfPostbuyformitemdealsadditionalservicestruct() {
+        return new ArrayOfPostbuyformitemdealsadditionalservicestruct();
+    }
+
+    /**
      * Create an instance of {@link UserIncomingPaymentStruct }
      * 
      */
@@ -3891,6 +3899,14 @@ public class ObjectFactory {
      */
     public ShipmentPriceTypeStruct createShipmentPriceTypeStruct() {
         return new ShipmentPriceTypeStruct();
+    }
+
+    /**
+     * Create an instance of {@link PostBuyFormItemDealsAdditionalServiceStruct }
+     * 
+     */
+    public PostBuyFormItemDealsAdditionalServiceStruct createPostBuyFormItemDealsAdditionalServiceStruct() {
+        return new PostBuyFormItemDealsAdditionalServiceStruct();
     }
 
     /**

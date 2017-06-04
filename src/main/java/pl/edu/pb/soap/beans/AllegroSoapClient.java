@@ -7,6 +7,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import pl.edu.pb.soap.model.AddItemResult;
+import pl.edu.pb.soap.proxy.ProxyCustom;
 import pl.edu.pb.soap.restModel.AddsContainer;
 import pl.edu.pb.soap.restModel.Advertisement;
 import pl.edu.pb.soap.restModel.Breadcrumb;
@@ -17,6 +18,7 @@ import sandboxwebapi.*;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
+import java.net.ProxySelector;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -44,6 +46,7 @@ public class AllegroSoapClient {
     @Autowired
     public AllegroSoapClient(Environment env) {
         this.env = env;
+        //ProxySelector.setDefault(new ProxyCustom());
         serviceService = new ServiceService();
         allegro = serviceService.getServicePort();
         sessionId = login(env.getProperty(ALLEGRO_SANDOBX_USER), env.getProperty(ALLEGRO_SANDBOX_PASSWORD));

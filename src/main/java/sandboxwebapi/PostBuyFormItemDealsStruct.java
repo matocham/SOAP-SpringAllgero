@@ -25,6 +25,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *         &lt;element name="dealDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *         &lt;element name="dealWasDiscounted" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="dealVariant" type="{urn:SandboxWebApi}PostBuyFormItemDealsVariantStruct" minOccurs="0"/>
+ *         &lt;element name="dealAdditionalServices" type="{urn:SandboxWebApi}ArrayOfPostbuyformitemdealsadditionalservicestruct" minOccurs="0"/>
  *       &lt;/all>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -47,6 +48,7 @@ public class PostBuyFormItemDealsStruct {
     protected XMLGregorianCalendar dealDate;
     protected boolean dealWasDiscounted;
     protected PostBuyFormItemDealsVariantStruct dealVariant;
+    protected ArrayOfPostbuyformitemdealsadditionalservicestruct dealAdditionalServices;
 
     /**
      * Gets the value of the dealId property.
@@ -158,6 +160,30 @@ public class PostBuyFormItemDealsStruct {
      */
     public void setDealVariant(PostBuyFormItemDealsVariantStruct value) {
         this.dealVariant = value;
+    }
+
+    /**
+     * Gets the value of the dealAdditionalServices property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ArrayOfPostbuyformitemdealsadditionalservicestruct }
+     *     
+     */
+    public ArrayOfPostbuyformitemdealsadditionalservicestruct getDealAdditionalServices() {
+        return dealAdditionalServices;
+    }
+
+    /**
+     * Sets the value of the dealAdditionalServices property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ArrayOfPostbuyformitemdealsadditionalservicestruct }
+     *     
+     */
+    public void setDealAdditionalServices(ArrayOfPostbuyformitemdealsadditionalservicestruct value) {
+        this.dealAdditionalServices = value;
     }
 
 }

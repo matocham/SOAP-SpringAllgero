@@ -41,6 +41,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="postBuyFormSentBySeller" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="postBuyFormBuyerLogin" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="postBuyFormBuyerEmail" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="postBuyFormAdditionalServicesAmount" type="{http://www.w3.org/2001/XMLSchema}float"/>
  *       &lt;/all>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -91,6 +92,7 @@ public class PostBuyFormDataStruct {
     protected String postBuyFormBuyerLogin;
     @XmlElement(required = true)
     protected String postBuyFormBuyerEmail;
+    protected float postBuyFormAdditionalServicesAmount;
 
     /**
      * Gets the value of the postBuyFormId property.
@@ -594,6 +596,22 @@ public class PostBuyFormDataStruct {
      */
     public void setPostBuyFormBuyerEmail(String value) {
         this.postBuyFormBuyerEmail = value;
+    }
+
+    /**
+     * Gets the value of the postBuyFormAdditionalServicesAmount property.
+     * 
+     */
+    public float getPostBuyFormAdditionalServicesAmount() {
+        return postBuyFormAdditionalServicesAmount;
+    }
+
+    /**
+     * Sets the value of the postBuyFormAdditionalServicesAmount property.
+     * 
+     */
+    public void setPostBuyFormAdditionalServicesAmount(float value) {
+        this.postBuyFormAdditionalServicesAmount = value;
     }
 
 }
